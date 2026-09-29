@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casafinder - Plataforma & Inteligencia Inmobiliaria</title>
+    <!-- Tailwind CSS desde CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React y ReactDOM desde CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel para procesar JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function App() {
+            // Estado para calculadora
+            const [precioTotal, setPrecioTotal] = useState(2500000);
+            const [m2Terreno, setM2Terreno] = useState(200);
+            const [m2Construccion, setM2Construccion] = useState(120);
+            const [rentaEstimadaMensual, setRentaEstimadaMensual] = useState(15000);
+            const [tipoRégimen, setTipoRégimen] = useState('escritura'); // 'escritura', 'parcelario', 'posesion'
+            const [comisionPct, setComisionPct] = useState(5);
+
+            // Cálculos automáticos
+            const precioM2Terreno = m2Terreno > 0 ? (precioTotal / m2Terreno).toFixed(2) : 0;
+            const precioM2Construccion = m2Construccion > 0 ? (precioTotal / m2Construccion).toFixed(2) : 0;
+            const ingresoAnualRenta = rentaEstimadaMensual * 12;
+            const roiAnual = precioTotal > 0 ? ((ingresoAnualRenta / precioTotal) * 100).toFixed(2) : 0;
+
+            // Reparto de comisión Casafinder
+            const montoComisionTotal = (precioTotal * (comisionPct / 100));
+            const comisionCaptador = (montoComisionTotal * 0.425).toFixed(2);
+            const comisionVendedor = (montoComisionTotal * 0.425).toFixed(2);
+            const comisionPlataforma = (montoComisionTotal * 0.15).toFixed(2);
+
+            // Mapeo del Semáforo Legal
+            const semaforoConfig = {
+                escritura: {
+                    color: 'bg-emerald-500/20 border-emerald-500 text-emerald-400',
+                    badge: 'Estatus Verde: Propiedad Privada',
+                    titulo: 'Escritura Pública Registrada en RPP',
+                    creditos: ['Contado', 'Crédito Bancario', 'Infonavit / Fovissste'],
+                    instancia: 'Notaría Pública y Registro Público de la Propiedad',
+                    checklist: [
+                        'Escritura pública con folio real en RPP',
+                        'Certificado de Libertad de Gravamen reciente',
+                        'Boleta Predial y Agua al corriente',
+                        'Identificación oficial de los titulares y cónyuge'
+                    ]
+                },
+                parcelario: {
+                    color: 'bg-amber-500/20 border-amber-500 text-amber-400',
+                    badge: 'Estatus Amarillo: Régimen Ejidal Regularizado',
+                    titulo: 'Título Parcelario / Certificado de Derechos',
+                    creditos: ['Solo Venta de Contado', 'Financiamiento Privado'],
+                    instancia: 'Registro Agrario Nacional (RAN) / Tribunal Agrario',
+                    checklist: [
+                        'Notificación formal del Derecho del Tanto (Art. 80 Ley Agraria)',
+                        'Certificado Parcelario original vigente',
+                        'Ratificación de firmas ante Notario o Registro Agrario Nacional',
+                        'Constancia de la Comisaría Ejidal sobre vigencia de derechos'
+                    ]
+                },
+                posesion: {
+                    color: 'bg-rose-500/20 border-rose-500 text-rose-400',
+                    badge: 'Estatus Rojo: Posesión Informal / Riesgo Elevado',
+                    titulo: 'Constancia de Posesión / Minuta de Compraventa',
+                    creditos: ['Incompatible con créditos institucionales'],
+                    instancia: 'Requiere Proceso de Regularización Previo',
+                    checklist: [
+                        'Constancia firmada por Comisariado Ejidal o Vecinal',
+                        'Levantamiento topográfico georreferenciado',
+                        'Validación de no afectación o litigio en curso',
+                        'Dictamen legal de viabilidad para adopción de Dominio Pleno'
+                    ]
+                }
+            };
+
+            const infoLegal = semaforoConfig[tipoRégimen];
+
+            return (
+                <div className="max-w-7xl mx-auto px-4 py-8">
+                    {/* Header */}
+                    <header className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-6 mb-8 gap-4">
+                        <div>
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-blue-600 rounded-lg text-white font-bold text-xl">CF</div>
+                                <h1 className="text-3xl font-extrabold tracking-tight text-white">
+                                    Casafinder <span className="text-blue-500 text-lg font-normal">| Intelligence Platform</span>
+                                </h1>
+                            </div>
+                            <p className="text-slate-400 text-sm mt-1">
+                                Red Inmobiliaria Colaborativa y Sistema de Certeza Jurídica Territorial
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-full text-xs font-semibold">
+                                Red Activa: 1,420 Corredores
+                            </span>
+                            <button className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg text-sm transition">
+                                + Subir Inmueble a la Red
+                            </button>
+                        </div>
+                    </header>
+
+                    {/* Dashboard Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+                        {/* Panel Izquierdo: Formularios y Parámetros */}
+                        <div className="lg:col-span-5 space-y-6">
+                            
+                            {/* Card: Datos Financieros del Inmueble */}
+                            <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-6 backdrop-blur">
+                                <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                                    Parámetros del Inmueble
+                                </h2>
+
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-xs font-medium text-slate-400 mb-1">Precio Total de Venta ($ MXN)</label>
+                                        <input 
+                                            type="number" 
+                                            value={precioTotal} 
+                                            onChange={(e) => setPrecioTotal(Number(e.target.value))}
+                                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 font-mono text-sm"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-medium text-slate-400 mb-1">Terreno (m²)</label>
+                                            <input 
+                                                type="number" 
+                                                value={m2Terreno} 
+                                                onChange={(e) => setM2Terreno(Number(e.target.value))}
+                                                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 font-mono text-sm"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-slate-400 mb-1">Construcción (m²)</label>
+                                            <input 
+                                                type="number" 
+                                                value={m2Construccion} 
+                                                onChange={(e) => setM2Construccion(Number(e.target.value))}
+                                                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 font-mono text-sm"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-medium text-slate-400 mb-1">Renta Estimada Mensual ($ MXN)</label>
+                                        <input 
+                                            type="number" 
+                                            value={rentaEstimadaMensual} 
+                                            onChange={(e) => setRentaEstimadaMensual(Number(e.target.value))}
+                                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 font-mono text-sm"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-medium text-slate-400 mb-1">Régimen Jurídico de la Tierra</label>
+                                        <select 
+                                            value={tipoRégimen} 
+                                            onChange={(e) => setTipoRégimen(e.target.value)}
+                                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 text-sm"
+                                        >
+                                            <option value="escritura">Propiedad Privada (Escritura en RPP)</option>
+                                            <option value="parcelario">Propiedad Agraria (Título Parcelario / RAN)</option>
+                                            <option value="posesion">Posesión / Constancia Ejidal o Vecinal</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Card: Red de Comisiones Compartidas */}
+                            <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-6 backdrop-blur">
+                                <h2 className="text-lg font-bold text-white mb-2 flex items-center justify-between">
+                                    <span>Calculadora MLS Casafinder</span>
+                                    <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded font-normal">
+                                        Comisión Pactada: {comisionPct}%
+                                    </span>
+                                </h2>
+                                <p className="text-xs text-slate-400 mb-4">
+                                    Monto Total de Comisión: <strong className="text-white font-mono">${montoComisionTotal.toLocaleString()} MXN</strong>
+                                </p>
+
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center bg-slate-900 p-3 rounded-lg border border-slate-800">
+                                        <div>
+                                            <p className="text-xs text-slate-400">Broker Captador (42.5%)</p>
+                                            <p className="text-sm font-bold text-slate-200">Consigue la Propiedad</p>
+                                        </div>
+                                        <span className="font-mono text-emerald-400 font-bold">${Number(comisionCaptador).toLocaleString()}</span>
+                                    </div>
+
+                                    <div className="flex justify-between items-center bg-slate-900 p-3 rounded-lg border border-slate-800">
+                                        <div>
+                                            <p className="text-xs text-slate-400">Broker Vendedor (42.5%)</p>
+                                            <p className="text-sm font-bold text-slate-200">Consigue al Comprador</p>
+                                        </div>
+                                        <span className="font-mono text-emerald-400 font-bold">${Number(comisionVendedor).toLocaleString()}</span>
+                                    </div>
+
+                                    <div className="flex justify-between items-center bg-slate-900 p-3 rounded-lg border border-slate-800">
+                                        <div>
+                                            <p className="text-xs text-blue-400">Plataforma Casafinder (15%)</p>
+                                            <p className="text-xs text-slate-400">Validación Legal, Avalúo y Escrow</p>
+                                        </div>
+                                        <span className="font-mono text-blue-400 font-bold">${Number(comisionPlataforma).toLocaleString()}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        {/* Panel Derecho: Métricas, Semáforo Legal y Checklist */}
+                        <div className="lg:col-span-7 space-y-6">
+                            
+                            {/* Métricas Principales */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="bg-slate-800/60 border border-slate-700/60 p-4 rounded-xl text-center">
+                                    <p className="text-xs text-slate-400 font-medium">Precio $/m² Terreno</p>
+                                    <p className="text-2xl font-black text-blue-400 font-mono mt-1">${Number(precioM2Terreno).toLocaleString()}</p>
+                                    <p className="text-[10px] text-slate-500 mt-1">Valor homologado en zona</p>
+                                </div>
+                                <div className="bg-slate-800/60 border border-slate-700/60 p-4 rounded-xl text-center">
+                                    <p className="text-xs text-slate-400 font-medium">Precio $/m² Construcción</p>
+                                    <p className="text-2xl font-black text-indigo-400 font-mono mt-1">${Number(precioM2Construccion).toLocaleString()}</p>
+                                    <p className="text-[10px] text-slate-500 mt-1">Costo paramétrico edificación</p>
+                                </div>
+                                <div className="bg-slate-800/60 border border-slate-700/60 p-4 rounded-xl text-center">
+                                    <p className="text-xs text-slate-400 font-medium">Retorno de Inversión (ROI)</p>
+                                    <p className="text-2xl font-black text-emerald-400 font-mono mt-1">{roiAnual}%</p>
+                                    <p className="text-[10px] text-slate-500 mt-1">Cap Rate anual estimado</p>
+                                </div>
+                            </div>
+
+                            {/* Semáforo Legal Dynamic Box */}
+                            <div className={`p-6 rounded-xl border-2 transition-all ${infoLegal.color}`}>
+                                <div className="flex justify-between items-start mb-3">
+                                    <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 bg-slate-900/80 rounded-full">
+                                        {infoLegal.badge}
+                                    </span>
+                                    <span className="text-xs text-slate-300">Instancia: {infoLegal.instancia}</span>
+                                </div>
+
+                                <h3 className="text-xl font-bold text-white mb-2">{infoLegal.titulo}</h3>
+
+                                <div className="mt-4">
+                                    <p className="text-xs font-bold uppercase text-slate-300 mb-2">Esquemas de Financiamiento Viables:</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {infoLegal.creditos.map((cred, idx) => (
+                                            <span key={idx} className="bg-slate-900/80 px-3 py-1 rounded-md text-xs font-medium text-slate-200 border border-slate-700">
+                                                ✓ {cred}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Checklist Notarial y Operativo */}
+                            <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-6">
+                                <h3 className="text-lg font-bold text-white mb-4 flex items-center justify-between">
+                                    <span>Checklist de Expediente Legal para Venta</span>
+                                    <span className="text-xs text-slate-400">Verificación Casafinder</span>
+                                </h3>
+
+                                <div className="space-y-3">
+                                    {infoLegal.checklist.map((item, idx) => (
+                                        <label key={idx} className="flex items-start gap-3 bg-slate-900/50 p-3 rounded-lg border border-slate-800 cursor-pointer hover:bg-slate-900 transition">
+                                            <input type="checkbox" className="mt-1 rounded bg-slate-800 border-slate-700 text-blue-600 focus:ring-blue-500" />
+                                            <span className="text-sm text-slate-300">{item}</span>
+                                        </label>
+                                    ))}
+                                </div>
+
+                                <div className="mt-6 pt-4 border-t border-slate-700/60 flex justify-between items-center">
+                                    <span className="text-xs text-slate-400">¿Dudas con la titulación? Solicita dictamen en app.</span>
+                                    <button className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs font-semibold transition">
+                                        Consultar Abogado Agrario / Notario
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
